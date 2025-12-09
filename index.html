@@ -1,284 +1,109 @@
-function MainComponent() {
-  const [streamers, setStreamers] = React.useState([
-    "kangjoel",
-    "sam",
-    "suspendas",
-    "ice_poseidon",
-    "cristravels",
-  ]);
-  const [currentStreamer, setCurrentStreamer] = React.useState("kangjoel");
-  const [streamerData, setStreamerData] = React.useState({});
-  const [newStreamer, setNewStreamer] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
-  const [lastCheck, setLastCheck] = React.useState(null);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swod's Live Streams Showcase! 🎀</title>
+    <style>
+        /* General Body and Cute Blue Theme */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff; /* Light, cute baby blue background */
+            color: #1e90ff; /* Dodger Blue for main text */
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
 
-  // Function to fetch streamer data from Kick API
-  const fetchStreamerData = React.useCallback(async (username) => {
-    try {
-      const response = await fetch(
-        `https://kick.com/api/v1/channels/${username}`,
-      );
-      if (!response.ok) return null;
-      const data = await response.json();
-      return {
-        username,
-        viewers: data.livestream?.viewer_count || 0,
-        isLive: !!data.livestream,
-        title: data.livestream?.session_title || "",
-        thumbnail: data.livestream?.thumbnail?.url || "",
-      };
-    } catch (error) {
-      console.error(`Error fetching data for ${username}:`, error);
-      return null;
-    }
-  }, []);
+        /* Header Styling */
+        h1 {
+            color: #4169e1; /* Royal Blue for a nice pop */
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px #add8e6; /* Light blue shadow for cuteness */
+        }
 
-  // Function to check all streamers and find the one with most viewers
-  const checkStreamers = React.useCallback(async () => {
-    setLoading(true);
-    const promises = streamers.map((streamer) => fetchStreamerData(streamer));
-    const results = await Promise.all(promises);
+        /* Container for the Streams */
+        .stream-container {
+            display: flex;
+            flex-wrap: wrap; 
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
 
-    const validResults = results.filter((result) => result !== null);
-    const liveStreamers = validResults.filter((result) => result.isLive);
+        /* Individual Stream Box Styling */
+        .stream-box {
+            background-color: #ffffff; 
+            border: 5px solid #87ceeb; /* Sky Blue border */
+            border-radius: 15px; 
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); 
+            padding: 15px;
+            width: 90%; 
+            max-width: 500px; 
+            transition: transform 0.3s ease;
+        }
 
-    // Create data object for display
-    const dataObj = {};
-    validResults.forEach((result) => {
-      dataObj[result.username] = result;
-    });
-    setStreamerData(dataObj);
+        .stream-box:hover {
+            transform: translateY(-5px); /* Cute little lift on hover */
+        }
 
-    // Find streamer with most viewers
-    if (liveStreamers.length > 0) {
-      const topStreamer = liveStreamers.reduce((prev, current) =>
-        prev.viewers > current.viewers ? prev : current,
-      );
-      setCurrentStreamer(topStreamer.username);
-    }
+        /* Stream Title */
+        h2 {
+            color: #00bfff; /* Deep Sky Blue */
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
 
-    setLastCheck(new Date());
-    setLoading(false);
-  }, [streamers, fetchStreamerData]);
+        /* Iframe Styling */
+        iframe {
+            width: 100%;
+            height: 300px; 
+            border: none;
+            border-radius: 10px;
+        }
 
-  // Auto-check every 30 minutes
-  React.useEffect(() => {
-    checkStreamers(); // Initial check
-    const interval = setInterval(checkStreamers, 30 * 60 * 1000); // 30 minutes
-    return () => clearInterval(interval);
-  }, [checkStreamers]);
+        /* Responsive adjustments for smaller screens */
+        @media (min-width: 1024px) {
+            .stream-container {
+                gap: 50px;
+            }
+            .stream-box {
+                width: 45%; 
+            }
+        }
+    </style>
+</head>
+<body>
 
-  // Add new streamer
-  const addStreamer = React.useCallback(() => {
-    if (newStreamer.trim() && !streamers.includes(newStreamer.trim())) {
-      setStreamers((prev) => [...prev, newStreamer.trim()]);
-      setNewStreamer("");
-    }
-  }, [newStreamer, streamers]);
+    <h1>Swod's Live Streams! ✨</h1>
+    <p>Check out which channel is live right now! *Ganbatte!*</p>
 
-  // Remove streamer
-  const removeStreamer = React.useCallback(
-    (username) => {
-      setStreamers((prev) => prev.filter((s) => s !== username));
-      if (currentStreamer === username && streamers.length > 1) {
-        const remaining = streamers.filter((s) => s !== username);
-        setCurrentStreamer(remaining[0]);
-      }
-    },
-    [streamers, currentStreamer],
-  );
+    <div class="stream-container">
 
-  const formatTime = (date) => {
-    return date ? date.toLocaleTimeString() : "Never";
-  };
-
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#0f0f0f",
-        color: "#fff",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{
-          padding: "20px",
-          borderBottom: "1px solid #333",
-          backgroundColor: "#1a1a1a",
-        }}
-      >
-        <h1 style={{ margin: "0 0 10px 0", fontSize: "24px" }}>
-          Kick Auto Viewer
-        </h1>
-        <div style={{ fontSize: "14px", color: "#888" }}>
-          Last check: {formatTime(lastCheck)} | Next check in:{" "}
-          {lastCheck
-            ? Math.max(
-                0,
-                30 - Math.floor((Date.now() - lastCheck.getTime()) / 60000),
-              )
-            : 30}{" "}
-          minutes
-          {loading && (
-            <span style={{ color: "#53fc18", marginLeft: "10px" }}>
-              Checking...
-            </span>
-          )}
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          height: "calc(100vh - 80px)",
-        }}
-      >
-        {/* Sidebar */}
-        <div
-          style={{
-            width: "300px",
-            backgroundColor: "#1a1a1a",
-            padding: "20px",
-            borderRight: "1px solid #333",
-            overflowY: "auto",
-          }}
-        >
-          <h3 style={{ margin: "0 0 15px 0", fontSize: "18px" }}>Streamers</h3>
-
-          {/* Add streamer form */}
-          <div style={{ marginBottom: "20px" }}>
-            <input
-              type="text"
-              value={newStreamer}
-              onChange={(e) => setNewStreamer(e.target.value)}
-              placeholder="Add streamer username"
-              onKeyPress={(e) => e.key === "Enter" && addStreamer()}
-              style={{
-                width: "100%",
-                padding: "8px",
-                backgroundColor: "#333",
-                border: "1px solid #555",
-                borderRadius: "4px",
-                color: "#fff",
-                marginBottom: "8px",
-              }}
-            />
-            <button
-              onClick={addStreamer}
-              style={{
-                width: "100%",
-                padding: "8px",
-                backgroundColor: "#53fc18",
-                color: "#000",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: "bold",
-              }}
-            >
-              Add Streamer
-            </button>
-          </div>
-
-          {/* Streamer list */}
-          <div>
-            {streamers.map((username) => {
-              const data = streamerData[username];
-              const isActive = currentStreamer === username;
-
-              return (
-                <div
-                  key={username}
-                  style={{
-                    padding: "12px",
-                    marginBottom: "8px",
-                    backgroundColor: isActive ? "#53fc18" : "#333",
-                    color: isActive ? "#000" : "#fff",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    position: "relative",
-                  }}
-                  onClick={() => setCurrentStreamer(username)}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontWeight: "bold" }}>{username}</div>
-                      {data && (
-                        <div style={{ fontSize: "12px", opacity: 0.8 }}>
-                          {data.isLive ? `${data.viewers} viewers` : "Offline"}
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeStreamer(username);
-                      }}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: isActive ? "#000" : "#fff",
-                        cursor: "pointer",
-                        fontSize: "16px",
-                        opacity: 0.7,
-                      }}
-                    >
-                      ×
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <button
-            onClick={checkStreamers}
-            disabled={loading}
-            style={{
-              width: "100%",
-              padding: "12px",
-              marginTop: "20px",
-              backgroundColor: loading ? "#555" : "#333",
-              color: "#fff",
-              border: "1px solid #555",
-              borderRadius: "4px",
-              cursor: loading ? "not-allowed" : "pointer",
-            }}
-          >
-            {loading ? "Checking..." : "Check Now"}
-          </button>
+        <div class="stream-box">
+            <h2>🟣 Kick Channel</h2>
+            <iframe
+                src="https://player.kick.com/swod"
+                frameborder="0"
+                allowfullscreen="true"
+                allow="autoplay; encrypted-media; picture-in-picture">
+            </iframe>
+            <p>Click the stream to watch! </p>
         </div>
 
-        {/* Main content - Stream viewer */}
-        <div style={{ flex: 1, backgroundColor: "#000" }}>
-          {currentStreamer && (
-            <div style={{ width: "100%", height: "100%" }}>
-              <iframe
-                src={`https://player.kick.com/${currentStreamer}`}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  border: "none",
-                }}
-                allowFullScreen
-                title={`${currentStreamer} stream`}
-              />
-            </div>
-          )}
+        <div class="stream-box">
+            <h2>💜 Twitch Channel</h2>
+            <iframe
+                src="https://player.twitch.tv/?channel=s3od9991&parent=[s99d.github.io]&muted=false"
+                frameborder="0"
+                allowfullscreen="true"
+                allow="autoplay; encrypted-media; picture-in-picture">
+            </iframe>
+            <p>Don't forget to follow! </p>
         </div>
-      </div>
+
     </div>
-  );
-}
 
-
-
+</body>
+</html>
