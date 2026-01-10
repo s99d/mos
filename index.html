@@ -1,110 +1,322 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <base target="_self">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Swod's Live Streams Showcase! 🎀</title>
+    <meta name="description" content="Swod's live streams showcase with Kick and Twitch channels plus Google Sheet integration">
     <style>
-        /* General Body and Cute Blue Theme */
+        /* RGB Animated Background */
+        @keyframes rgbBackground {
+            0% { background-color: #ff0000; }
+            25% { background-color: #00ff00; }
+            50% { background-color: #0000ff; }
+            75% { background-color: #ffff00; }
+            100% { background-color: #ff00ff; }
+        }
+        
+        @keyframes rgbGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f0f8ff; /* Light, cute baby blue background */
-            color: #1e90ff; /* Dodger Blue for main text */
+            background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff, #ffff00, #ff00ff);
+            background-size: 400% 400%;
+            animation: rgbGradient 15s ease infinite;
+            color: #1e90ff;
             text-align: center;
             padding: 20px;
             margin: 0;
+            min-height: 100vh;
         }
-
+        
+        /* Content container with semi-transparent background */
+        .content-wrapper {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 0 auto;
+            max-width: 1200px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
         /* Header Styling */
         h1 {
-            color: #4169e1; /* Royal Blue for a nice pop */
+            color: #4169e1;
             font-size: 2.5em;
             margin-bottom: 10px;
-            text-shadow: 2px 2px #add8e6; /* Light blue shadow for cuteness */
+            text-shadow: 2px 2px #add8e6;
         }
-
+        
+        .subtitle {
+            color: #1e90ff;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        
         /* Container for the Streams */
         .stream-container {
             display: flex;
-            flex-wrap: wrap; 
+            flex-wrap: wrap;
             justify-content: center;
             gap: 30px;
             margin-top: 20px;
+            margin-bottom: 40px;
         }
-
+        
         /* Individual Stream Box Styling */
         .stream-box {
-            background-color: #ffffff; 
-            border: 5px solid #87ceeb; /* Sky Blue border */
-            border-radius: 15px; 
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); 
-            padding: 15px;
-            width: 90%; 
-            max-width: 500px; 
-            transition: transform 0.3s ease;
+            background-color: #ffffff;
+            border: 5px solid #87ceeb;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            transition: all 0.3s ease;
         }
-
+        
         .stream-box:hover {
-            transform: translateY(-5px); /* Cute little lift on hover */
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+            border-color: #00bfff;
         }
-
+        
         /* Stream Title */
         h2 {
-            color: #00bfff; /* Deep Sky Blue */
+            color: #00bfff;
             margin-top: 0;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 1.8em;
         }
-
-        /* Iframe Styling */
-        iframe {
+        
+        /* Stream Iframe Styling */
+        .stream-iframe {
             width: 100%;
-            height: 300px; 
+            height: 300px;
             border: none;
             border-radius: 10px;
+            background-color: #000;
         }
-
-        /* Responsive adjustments for smaller screens */
+        
+        .stream-note {
+            color: #4169e1;
+            margin-top: 10px;
+            font-size: 1em;
+        }
+        
+        /* Google Sheet Section */
+        .sheet-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 3px dashed #87ceeb;
+        }
+        
+        .sheet-title {
+            color: #4169e1;
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px #add8e6;
+        }
+        
+        .sheet-container {
+            background-color: #ffffff;
+            border: 5px solid #87ceeb;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .sheet-iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            border-radius: 10px;
+            background-color: #ffffff;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .stream-box {
+                width: 100%;
+                padding: 15px;
+            }
+            
+            .sheet-iframe {
+                height: 400px;
+            }
+        }
+        
         @media (min-width: 1024px) {
             .stream-container {
                 gap: 50px;
             }
+            
             .stream-box {
-                width: 45%; 
+                width: 45%;
             }
+            
+            .sheet-iframe {
+                height: 700px;
+            }
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            color: #4169e1;
+            font-size: 0.9em;
+            padding: 20px;
+            border-top: 2px solid #87ceeb;
+        }
+        
+        /* Cute decorative elements */
+        .decoration {
+            font-size: 1.5em;
+            margin: 0 5px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .header-decoration {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-
-    <h1>Swod's Live Streams! ✨</h1>
-    <p>Check out which channel is live right now! *Ganbatte!*</p>
-
-    <div class="stream-container">
-
-        <div class="stream-box">
-            <h2>🟣 Kick Channel</h2>
-            <iframe
-                src="https://player.kick.com/swod"
-                frameborder="0"
-                allowfullscreen="true"
-                allow="autoplay; encrypted-media; picture-in-picture">
-            </iframe>
-            <p>Click the stream to watch! </p>
+    <div class="content-wrapper">
+        <!-- Header with decorations -->
+        <div class="header-decoration">
+            <span class="decoration">✨</span>
+            <span class="decoration">🎀</span>
+            <span class="decoration">🌟</span>
         </div>
-
-        <div class="stream-box">
-            <h2>💜 Twitch Channel</h2>
-            <iframe
-                src="https://player.twitch.tv/?channel=s3od9991&parent=s99d.github.io&muted=false"
-                frameborder="0"
-                allowfullscreen="true"
-                allow="autoplay; encrypted-media; picture-in-picture">
-            </iframe>
-            <p>Don't forget to follow! </p>
+        
+        <h1>Swod's Live Streams! ✨</h1>
+        <p class="subtitle">Check out which channel is live right now! *Ganbatte!*</p>
+        
+        <!-- Streams Container -->
+        <div class="stream-container">
+            <!-- Kick Channel -->
+            <div class="stream-box">
+                <h2>🟣 Kick Channel</h2>
+                <iframe
+                    class="stream-iframe"
+                    src="https://player.kick.com/swod"
+                    frameborder="0"
+                    allowfullscreen="true"
+                    allow="autoplay; encrypted-media; picture-in-picture"
+                    title="Swod's Kick Live Stream">
+                </iframe>
+                <p class="stream-note">Click the stream to watch! 🎮</p>
+            </div>
+            
+            <!-- Twitch Channel -->
+            <div class="stream-box">
+                <h2>💜 Twitch Channel</h2>
+                <iframe
+                    class="stream-iframe"
+                    src="https://player.twitch.tv/?channel=s3od9991&parent=s99d.github.io&muted=false"
+                    frameborder="0"
+                    allowfullscreen="true"
+                    allow="autoplay; encrypted-media; picture-in-picture"
+                    title="Swod's Twitch Live Stream">
+                </iframe>
+                <p class="stream-note">Don't forget to follow! 💜</p>
+            </div>
         </div>
-
+        
+        <!-- Google Sheet Section -->
+        <div class="sheet-section">
+            <h2 class="sheet-title">📊 Live Stream Schedule & Stats</h2>
+            <div class="sheet-container">
+                <iframe
+                    class="sheet-iframe"
+                    src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQxkZWkEIujVtYFf5Bo6u5qXtot_-xw-v9FVkM58TaNCG5ihBS5BGqhArwI8tOZbGH3aLY-57j-r3EH/pubhtml?widget=true&amp;headers=false"
+                    frameborder="0"
+                    title="Swod's Stream Schedule Google Sheet">
+                </iframe>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>Made with ❤️ , i love you guys🎮✨</p>
+            <p>Btw you can Refresh page to see updated stream status and schedule!</p>
+        </div>
     </div>
-
+    
+    <script>
+        // Add interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click effects to stream boxes
+            const streamBoxes = document.querySelectorAll('.stream-box');
+            streamBoxes.forEach(box => {
+                box.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+            });
+            
+            // Add random decoration animation delays
+            const decorations = document.querySelectorAll('.decoration');
+            decorations.forEach((dec, index) => {
+                dec.style.animationDelay = `${index * 0.5}s`;
+            });
+            
+            // Update page title with cute emoji cycling
+            const emojis = ['✨', '🎀', '🌟', '🎮', '💜', '🟣'];
+            let emojiIndex = 0;
+            
+            function updateTitleEmoji() {
+                const baseTitle = "Swod's Live Streams Showcase! ";
+                document.title = baseTitle + emojis[emojiIndex];
+                emojiIndex = (emojiIndex + 1) % emojis.length;
+            }
+            
+            // Change emoji every 3 seconds
+            setInterval(updateTitleEmoji, 3000);
+            
+            // Initialize
+            updateTitleEmoji();
+        });
+        
+        // Prevent iframe navigation from affecting parent
+        document.querySelectorAll('iframe').forEach(iframe => {
+            iframe.addEventListener('load', function() {
+                try {
+                    this.contentWindow.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
+                } catch (e) {
+                    // Cross-origin restrictions may apply
+                }
+            });
+        });
+    </script>
 </body>
 </html>
-
